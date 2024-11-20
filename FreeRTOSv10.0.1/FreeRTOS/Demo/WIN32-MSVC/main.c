@@ -134,6 +134,27 @@ static BaseType_t xTraceRunning = pdTRUE;
 
 /*-----------------------------------------------------------*/
 
+void HelloTask() {
+	while (1) {
+		printf("Hello World!\n");
+		vTaskDelay(1000);
+	}
+}
+
+void Task1() {
+	while (1) {
+		printf("This is task 1\n");
+		vTaskDelay(100);
+		fflush(stdout);
+	}
+}
+
+void Task2() {
+	while (1) {
+		printf("This is task 2\n");
+		vTaskDelay(500);
+	}
+}
 
 int main( void )
 {
@@ -146,8 +167,15 @@ int main( void )
 	See http://www.FreeRTOS.org/trace for more information. */
 	vTraceEnable( TRC_START );
 
+	//xTaskHandle HT;
+	//xTaskCreate(HelloTask, "HelloTask", configMINIMAL_STACK_SIZE, NULL, 1, &HT);
 
-	
+	xTaskHandle T1;
+	xTaskHandle T2;
+
+	xTaskCreate(Task1, "Task1", 1000, NULL, 3, &T1);
+	xTaskCreate(Task2, "Task2", 100, NULL, 1, &T2);
+
 	vTaskStartScheduler();
 	for (;;);
 	return 0;
@@ -259,7 +287,6 @@ volatile uint32_t ulSetToNonZeroInDebuggerToContinue = 0;
 	( void ) ulLine;
 	( void ) pcFileName;
 
-	printf( "ASSERT! Line %ld, file %s, GetLastError() %ld\r\n", ulLine, pcFileName, GetLastError() );
 
  	taskENTER_CRITICAL();
 	{
@@ -279,8 +306,8 @@ volatile uint32_t ulSetToNonZeroInDebuggerToContinue = 0;
 		value. */
 		while( ulSetToNonZeroInDebuggerToContinue == 0 )
 		{
-			__asm{ NOP };
-			__asm{ NOP };
+			__asm volatile( "NOP" );
+			__asm volatile( "NOP" );
 		}
 	}
 	taskEXIT_CRITICAL();
